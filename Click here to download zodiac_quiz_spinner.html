@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>What's your Zodiac's Lucky Vibe?</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap');
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: 'DM Sans', sans-serif;
+      background-color: #ffffff;
+      color: #1a1a1a;
+    }
+    h1 { display: none; }
+    #zodiac-quiz-app {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      font-size: 1.2rem;
+      box-sizing: border-box;
+    }
+    h2 {
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+    }
+    input {
+      width: 100%;
+      max-width: 450px;
+      padding: 16px;
+      margin: 15px auto 30px;
+      font-size: 1.2rem;
+      background: #f4f1ec;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      display: block;
+    }
+    button {
+      padding: 16px 32px;
+      margin: 15px 8px;
+      font-size: 1.2rem;
+      color: #ffffff;
+      background-color: #000000;
+      border: 2px solid #000000;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #333333;
+    }
+    .z-page { display: none; }
+    .z-active { display: block; }
+    .z-btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      background: #f4f4f4;
+      color: #1a1a1a;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .z-btn:hover {
+      background-color: #e0e0e0;
+    }
+    .z-btn.selected {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      font-weight: bold;
+      transform: scale(1.03);
+    }
+    .zodiac-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      justify-items: center;
+    }
+    .z-btn strong {
+      font-size: 1.2rem;
+    }
+    .z-btn small {
+      display: block;
+      font-size: 1rem;
+    }
+    .result-box {
+      background-color: #fdfdfd;
+      color: #1a1a1a;
+      font-size: 1.4rem;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .result-box hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 20px auto;
+      width: 60%;
+    }
+    .result-box p {
+      margin: 14px 0;
+      line-height: 1.6;
+    }
+    .result-box strong {
+      font-weight: 700;
+      color: #000;
+    }
+    .result-box img {
+      width: 80px;
+      height: auto;
+      display: inline-block;
+      margin: 10px auto;
+    }
+    #z-spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      animation: spin 4s linear infinite;
+    }
+    #z-spinner img {
+      width: 200px;
+      height: auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="zodiac-quiz-app">
+    <div id="z-page1" class="z-page z-active">
+      <h2>What's your Zodiac's Lucky Vibe? 🔮</h2>
+      <input type="text" id="z-name" placeholder="Enter your name">
+      <div id="z-zodiac-options" class="zodiac-grid"></div>
+      <button onclick="zGoToPage2(event)">Next</button>
+    </div>
+    <div id="z-page2" class="z-page">
+      <h2>Which area do you want to be lucky in?</h2>
+      <div id="z-luck-options" class="zodiac-grid"></div>
+      <button onclick="zBackToPage1()">Back</button>
+      <button onclick="zGoToPage3()">Continue</button>
+    </div>
+    <div id="z-page3" class="z-page">
+      <div id="z-spinner">
+        <img src="https://cdn.shopify.com/s/files/1/0843/7835/3965/files/7c39517708a8c12ca5e39d2a5ce18932378d8de909ec540a9450b39382b7cf7d.png?v=1751407836" alt="Zodiac Wheel">
+      </div>
+    </div>
+    <div id="z-page4" class="z-page">
+      <h2>Your Zodiac Luck Result</h2>
+      <div class="result-box" id="z-result"></div>
+      <br><button onclick="zRestart()">Try Again</button>
+    </div>
+  </div>
+  <script>
+    const zPages = ["z-page1", "z-page2", "z-page3", "z-page4"];
+    const zSelected = {};
+    const zZodiacs = {
+      "Aries": ["Mar 21 - Apr 19"],
+      "Taurus": ["Apr 20 - May 20"],
+      "Gemini": ["May 21 - Jun 20"],
+      "Cancer": ["Jun 21 - Jul 22"],
+      "Leo": ["Jul 23 - Aug 22"],
+      "Virgo": ["Aug 23 - Sep 22"],
+      "Libra": ["Sep 23 - Oct 22"],
+      "Scorpio": ["Oct 23 - Nov 21"],
+      "Sagittarius": ["Nov 22 - Dec 21"],
+      "Capricorn": ["Dec 22 - Jan 19"],
+      "Aquarius": ["Jan 20 - Feb 18"],
+      "Pisces": ["Feb 19 - Mar 20"]
+    };
+    const zLuckFields = {
+      "Love ❤️": "Romance is in the air.",
+      "Wealth 💰": "Money is coming your way.",
+      "Career 🧑‍💼": "Opportunities may arise."
+    };
+
+    function zShowPage(id) {
+      zPages.forEach(p => document.getElementById(p).classList.remove("z-active"));
+      document.getElementById(id).classList.add("z-active");
+      document.getElementById("z-spinner").style.display = (id === "z-page3") ? "flex" : "none";
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    const zZodiacDiv = document.getElementById("z-zodiac-options");
+    for (const [sign, [dates]] of Object.entries(zZodiacs)) {
+      const btn = document.createElement("button");
+      btn.className = "z-btn";
+      btn.innerHTML = `<strong>${sign}</strong><br><small>${dates}</small>`;
+      btn.onclick = () => {
+        zSelected.zodiac = sign;
+        document.querySelectorAll("#z-zodiac-options .z-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      };
+      zZodiacDiv.appendChild(btn);
+    }
+
+    function zGoToPage2(e) {
+      if (e) e.preventDefault();
+      zSelected.name = document.getElementById("z-name").value.trim();
+      if (!zSelected.name || !zSelected.zodiac) {
+        alert("Please enter your name and select a zodiac sign.");
+        return;
+      }
+      const optDiv = document.getElementById("z-luck-options");
+      optDiv.innerHTML = "";
+      for (const field in zLuckFields) {
+        const btn = document.createElement("button");
+        btn.innerText = field;
+        btn.className = "z-btn";
+        btn.onclick = () => {
+          zSelected.luck = field;
+          document.querySelectorAll("#z-luck-options .z-btn").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        };
+        optDiv.appendChild(btn);
+      }
+      zShowPage("z-page2");
+    }
+
+    function zBackToPage1() {
+      zShowPage("z-page1");
+    }
+
+    function zGoToPage3() {
+      if (!zSelected.luck) {
+        alert("Please select an area of luck.");
+        return;
+      }
+      zShowPage("z-page3");
+      setTimeout(() => {
+        zGenerateResult();
+        zShowPage("z-page4");
+      }, 4000);
+    }
+
+    function zGenerateResult() {
+      document.getElementById("z-result").innerHTML = `
+        <p><strong>${zSelected.name}</strong>'s Zodiac Sign: <strong>${zSelected.zodiac}</strong></p>
+        <p>🔮 Lucky Focus: <strong>${zSelected.luck}</strong></p>
+        <p>${zLuckFields[zSelected.luck]}</p>
+      `;
+    }
+
+    function zRestart() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
